@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.37111.16 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PriceTracker.Gateway", "PriceTracker.Gateway\PriceTracker.Gateway.csproj", "{521AF8BD-FF2E-47B9-91EE-213157749456}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PriceTracker.Ozon.Worker", "PriceTracker.Ozon.Worker\PriceTracker.Ozon.Worker.csproj", "{77BBE6E6-B017-4475-9AC8-755F56DD367F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PriceTracker.Wildberries.Worker", "PriceTracker.Wildberries.Worker\PriceTracker.Wildberries.Worker.csproj", "{B8F545FA-3AA0-46D7-8EEA-3AC0D726B131}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PriceTracker.Notification", "PriceTracker.Notification\PriceTracker.Notification.csproj", "{4A8F56A5-7113-463D-A42B-BC38B61002F9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PriceTracker.Shared", "PriceTracker.Shared\PriceTracker.Shared.csproj", "{57D90DFE-1C54-42F7-B7AA-FA4C3E74F1B5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{521AF8BD-FF2E-47B9-91EE-213157749456}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{521AF8BD-FF2E-47B9-91EE-213157749456}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{521AF8BD-FF2E-47B9-91EE-213157749456}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{521AF8BD-FF2E-47B9-91EE-213157749456}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77BBE6E6-B017-4475-9AC8-755F56DD367F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77BBE6E6-B017-4475-9AC8-755F56DD367F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77BBE6E6-B017-4475-9AC8-755F56DD367F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77BBE6E6-B017-4475-9AC8-755F56DD367F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8F545FA-3AA0-46D7-8EEA-3AC0D726B131}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8F545FA-3AA0-46D7-8EEA-3AC0D726B131}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8F545FA-3AA0-46D7-8EEA-3AC0D726B131}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8F545FA-3AA0-46D7-8EEA-3AC0D726B131}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A8F56A5-7113-463D-A42B-BC38B61002F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A8F56A5-7113-463D-A42B-BC38B61002F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A8F56A5-7113-463D-A42B-BC38B61002F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A8F56A5-7113-463D-A42B-BC38B61002F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57D90DFE-1C54-42F7-B7AA-FA4C3E74F1B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57D90DFE-1C54-42F7-B7AA-FA4C3E74F1B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57D90DFE-1C54-42F7-B7AA-FA4C3E74F1B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57D90DFE-1C54-42F7-B7AA-FA4C3E74F1B5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0CBD224C-FD98-42E0-B4EB-FAA064E4ABFC}
+	EndGlobalSection
+EndGlobal
