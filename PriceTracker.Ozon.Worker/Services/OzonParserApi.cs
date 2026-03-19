@@ -32,6 +32,7 @@ namespace PriceTracker.Ozon.Worker.Services
             {
                 //logger
             }
+
             return response;
         }
     }

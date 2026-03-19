@@ -10,86 +10,124 @@ using System.Threading.Tasks;
 
 namespace PriceTracker.Ozon.Worker
 {
-    public class Worker : BackgroundService   
+    public class Worker : BackgroundService
     {
-        private readonly IOzonParserApi _ozonParserApi;
-        private readonly OzonDbContext _dbContext;
-        private readonly IMessageBus _messageBus;
+        private readonly IServiceScopeFactory _scopeFactory;        
 
-        public Worker(
-            IOzonParserApi ozonParserApi, 
-            OzonDbContext ozonDbContext,
-            IMessageBus messageBus
-            )
-        {           
-            _ozonParserApi = ozonParserApi;
-            _dbContext = ozonDbContext;
-            _messageBus = messageBus;
+        public Worker(IServiceScopeFactory scopeFactory )            
+        {
+            _scopeFactory = scopeFactory;            
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var tasks = await _dbContext.OzonTasks
-                    .Where(x => x.LastParseDate > DateTime.Now.AddHours(-1))
-                    .Where(x => x.ParseToDate <= DateTime.Now)
-                    .Where(x => x.Status == TStatus.Active)
-                    .Take(5)
-                    .ToListAsync();
-                
-                var parallelOptions = new ParallelOptions
-                {
-                    MaxDegreeOfParallelism = 5,
-                    CancellationToken = stoppingToken
-                };
-
-                await Parallel.ForEachAsync(tasks, parallelOptions, async (task, token) =>
-                {
-                    try
-                    {
-                        var responseData = await _ozonParserApi.GetPriceAsync(task.Url, token);
-
-                        if (responseData != null)
-                        {
-                            task.LastParseDate = DateTime.Now;
-
-                            var history = new PriceHistory
-                            {
-                                Id = Guid.NewGuid(),
-                                OzonTaskId = task.Id,
-                                Price = responseData.Price,
-                                CheckedAt = DateTime.UtcNow
-                            };
-
-                            await _dbContext.PriceHistories.AddAsync(history, token);
-                                                       
-                            if (responseData.Price <= task.ThresholdPrice)
-                            {
-                                await _messageBus.PublishAsync(                                        
-                                    new NotificationEvent                                        
-                                    {       
-                                        ProductName = task.Name,                                            
-                                        Price = responseData.Price,                                            
-                                        Email = task.Email                                        
-                                    },
-                                    QueueNames.NotificationTasks,
-                                    token
-                                );
-                            }
-                        }
+                try
+                {                    
+                    var tasks = await GetTasksAsync(stoppingToken);
+                                       
+                    if (tasks.Count == 0)
+                    {                        
+                        await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+                        continue;
                     }
-                    catch (Exception ex)
+                    
+                    await ProcessTasksAsync(tasks, stoppingToken);
+                    
+                    await Task.Delay(100, stoppingToken);
+                }
+                catch (OperationCanceledException oe)
+                {
+                    //logger
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    //logger
+                    await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+                }
+            }            
+        }
+
+        private async Task<List<OzonTask>> GetTasksAsync(CancellationToken stoppingToken)
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<OzonDbContext>();
+
+            return await dbContext.OzonTasks
+                .Where(x => x.LastParseDate > DateTime.UtcNow.AddHours(-1))
+                .Where(x => x.ParseToDate <= DateTime.UtcNow)
+                .Where(x => x.Status == TStatus.Active)
+                .OrderBy(x => x.LastParseDate)
+                .Take(5)
+                .ToListAsync(stoppingToken);
+        }
+
+        private async Task ProcessTasksAsync(List<OzonTask> tasks, CancellationToken stoppingToken)
+        {
+            var parallelOptions = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = 5,
+                CancellationToken = stoppingToken
+            };
+
+            await Parallel.ForEachAsync(tasks, parallelOptions, async (task, token) =>
+            {               
+                using var scope = _scopeFactory.CreateScope();
+                var dbContext = scope.ServiceProvider.GetRequiredService<OzonDbContext>();
+                var messageBus = scope.ServiceProvider.GetRequiredService<IMessageBus>();
+                var ozonParserApi = scope.ServiceProvider.GetRequiredService<IOzonParserApi>();
+
+                try
+                {                    
+                    var freshTask = await dbContext.OzonTasks
+                        .FirstOrDefaultAsync(t => t.Id == task.Id, token);
+
+                    if (freshTask == null)
                     {
                         //logger
+                        return;
                     }
-                });
 
-                await _dbContext.SaveChangesAsync(stoppingToken);
+                    var responseData = await ozonParserApi.GetPriceAsync(freshTask.Url, token);
 
+                    if (responseData != null)
+                    {
+                        freshTask.LastParseDate = DateTime.UtcNow;
 
-                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);                
-            }
+                        var history = new PriceHistory
+                        {
+                            Id = Guid.NewGuid(),
+                            OzonTaskId = freshTask.Id,
+                            Price = responseData.Price,
+                            CheckedAt = DateTime.UtcNow
+                        };
+
+                        await dbContext.PriceHistories.AddAsync(history, token);
+
+                        if (responseData.Price <= freshTask.ThresholdPrice)
+                        {
+                            await messageBus.PublishAsync(
+                                new NotificationEvent
+                                {
+                                    ProductName = freshTask.Name,
+                                    Price = responseData.Price,
+                                    Email = freshTask.Email
+                                },
+                                QueueNames.NotificationTasks,
+                                token
+                            );
+                        }
+
+                        await dbContext.SaveChangesAsync(token);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    //logger
+                }
+            });
         }
     }
 }
