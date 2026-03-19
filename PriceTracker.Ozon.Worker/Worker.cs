@@ -22,8 +22,7 @@ namespace PriceTracker.Ozon.Worker
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
-            {
-                return;//!!!!!!!!!!!!!!!!!!!!!!!
+            {                
                 try
                 {                    
                     var tasks = await GetTasksAsync(stoppingToken);

@@ -57,49 +57,36 @@ public class RabbitMqBus : IMessageBus, IDisposable
         }, ct);
     }
 
-    public async Task<T?> ConsumeAsync<T>(string queueName, CancellationToken ct = default)
-    {
-        var tcs = new TaskCompletionSource<T?>();
-
+    public Task<T?> ConsumeAsync<T>(string queueName, CancellationToken ct = default)
+    {        
         _channel.QueueDeclare(
             queue: queueName,
             durable: true,
             exclusive: false,
             autoDelete: false);
+        
+        var result = _channel.BasicGet(queueName, autoAck: false);
 
-        var consumer = new AsyncEventingBasicConsumer(_channel);
-
-        consumer.Received += async (model, ea) =>
+        if (result == null)
         {
-            try
-            {
-                var body = ea.Body.ToArray();
-                var json = Encoding.UTF8.GetString(body);
-                var message = JsonSerializer.Deserialize<T>(json, _jsonOptions);
+            return Task.FromResult<T?>(default);
+        }
 
-                _channel.BasicAck(ea.DeliveryTag, false);
-                tcs.TrySetResult(message);
-            }
-            catch (Exception ex)
-            {
-                _channel.BasicNack(ea.DeliveryTag, false, true);
-                tcs.TrySetException(ex);
-            }
-            await Task.CompletedTask;
-        };
+        try
+        {
+            var body = result.Body.ToArray();
+            var json = Encoding.UTF8.GetString(body);
+            var message = JsonSerializer.Deserialize<T>(json, _jsonOptions);
+                        
+            _channel.BasicAck(result.DeliveryTag, false);
 
-        _channel.BasicConsume(
-            queue: queueName,
-            autoAck: false,
-            consumer: consumer);
-
-        using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-        cts.CancelAfter(TimeSpan.FromSeconds(30));
-
-        using var registration = cts.Token.Register(() =>
-            tcs.TrySetCanceled(), false);
-
-        return await tcs.Task;
+            return Task.FromResult(message);
+        }
+        catch (Exception)
+        {            
+            _channel.BasicNack(result.DeliveryTag, false, true);
+            throw;
+        }
     }
 
     public void Dispose()
