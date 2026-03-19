@@ -8,13 +8,12 @@ namespace PriceTracker.Shared.Infrastructure.Http
 {
     public interface IHttpApiClient
     {
-        public interface IHttpApiClient
-        {
-            Task<T?> GetAsync<T>(string requestUri, CancellationToken cancellationToken = default);
+        Task<T?> GetAsync<T>(string requestUri, CancellationToken cancellationToken = default);
 
-            Task<T?> PostAsync<T>(string requestUri, object data, CancellationToken cancellationToken = default);
+        Task<T?> PostAsync<T>(string requestUri, object data, CancellationToken cancellationToken = default);
 
-            Task<T?> PostAsync<T>(string requestUri, HttpContent content, CancellationToken cancellationToken = default);
-        }
+        Task<T?> PostAsync<T>(string requestUri, HttpContent content, CancellationToken cancellationToken = default);
+
+        void SetBearerToken(string token);
     }
 }

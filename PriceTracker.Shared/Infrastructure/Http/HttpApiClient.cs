@@ -24,6 +24,14 @@ namespace PriceTracker.Shared.Infrastructure.Http
             };
         }
 
+        public void SetBearerToken(string token)
+        {
+            if (string.IsNullOrWhiteSpace(token)) return;                
+
+            _httpClient.DefaultRequestHeaders.Remove("Authorization");
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+        }
+
         public async Task<T?> GetAsync<T>(string requestUri, CancellationToken cancellationToken = default)
         {
             try

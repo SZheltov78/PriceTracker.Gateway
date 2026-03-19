@@ -16,4 +16,8 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.14" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.3" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PriceTracker.Shared\PriceTracker.Shared.csproj" />
+  </ItemGroup>
 </Project>

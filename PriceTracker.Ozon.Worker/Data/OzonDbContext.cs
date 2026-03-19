@@ -22,12 +22,25 @@ public class OzonDbContext : DbContext
             entity.ToTable("OzonTasks");
             entity.HasKey(e => e.Id);
 
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+
             entity.Property(e => e.Url)
                 .IsRequired()
                 .HasMaxLength(500);
 
+            entity.Property(e => e.Email)
+                .IsRequired()
+                .HasMaxLength(100);
+
             entity.Property(e => e.ThresholdPrice)
                 .HasPrecision(18, 2);
+
+            entity.Property(e => e.Status)
+                .HasConversion<string>()
+                .HasMaxLength(20)
+                .IsRequired();
 
             entity.HasMany(e => e.PriceHistories)
                 .WithOne(e => e.OzonTask)

@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PriceTracker.Shared.Contracts
+namespace PriceTracker.Wildberries.Worker.Services
 {
-    public interface IRepository
+    interface IWbParserApi
     {
-
     }
 }
