@@ -23,6 +23,7 @@ namespace PriceTracker.Ozon.Worker
         {
             while (!stoppingToken.IsCancellationRequested)
             {
+                return;//!!!!!!!!!!!!!!!!!!!!!!!
                 try
                 {                    
                     var tasks = await GetTasksAsync(stoppingToken);

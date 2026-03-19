@@ -24,7 +24,7 @@ namespace PriceTracker.Ozon.Worker
         {           
 
             while (!stoppingToken.IsCancellationRequested)
-            {
+            {                
                 try
                 {                    
                     using (var scope = _scopeFactory.CreateScope())

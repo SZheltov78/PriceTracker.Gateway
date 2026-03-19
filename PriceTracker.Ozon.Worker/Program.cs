@@ -13,12 +13,16 @@ builder.Services.AddDbContext<OzonDbContext>(options =>
 
 builder.Services.AddHttpClient<IHttpApiClient, HttpApiClient>(client =>
 {
-    client.Timeout = TimeSpan.FromSeconds(30);    
+    client.Timeout = TimeSpan.FromSeconds(30);
 });
 
 builder.Services.AddTransient<IOzonParserApi, OzonParserApi>();
+
+
+builder.Services.Configure<RabbitMqOptions>(builder.Configuration.GetSection("RabbitMQ"));
 builder.Services.AddTransient<IMessageBus, RabbitMqBus>();
 
+// Фоновые службы
 builder.Services.AddHostedService<Worker>();
 builder.Services.AddHostedService<HistoryRequestWorker>();
 
