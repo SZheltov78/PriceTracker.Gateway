@@ -19,50 +19,33 @@ public class TestController : ControllerBase
     {
         return Ok(new { message = "Gateway is alive", timestamp = DateTime.UtcNow });
     }
+    
 
-
-    [HttpGet("ozon-history-request-publish")]
-    public async Task<IActionResult> TestOzonHistoryRequest()
+    [HttpGet("ozon-history-request-call")]
+    public async Task<IActionResult> TestOzonHistoryCall(
+    [FromQuery] string? email = null,
+    [FromQuery] int take = 100)
     {
         try
         {
-            var task = new HistoryRequest
+            var request = new HistoryRequest
             {
-                Email = "test6@test.ru",
-                Take = 10
+                Email = email,
+                Take = take
             };
 
-            await _messageBus.PublishAsync(
-                task,
-                QueueNames.OzonHistoryRequest,
-                HttpContext.RequestAborted
-                );
+            //с ожиданием ответа
+            var response = await _messageBus.CallAsync<HistoryRequest, HistoryResponse>(
+                request,
+                requestQueue: QueueNames.OzonHistoryRequest,
+                responseQueue: QueueNames.OzonHistoryResponse,
+                ct: HttpContext.RequestAborted);
 
-            return Ok(new
-            {
-                success = true                
-            });
+            return Ok(response);
         }
-        catch (Exception ex)
-        {            
-            return StatusCode(500, new { success = false, error = ex.Message });
-        }
-    }
-
-    [HttpGet("ozon-history-request-consume")]
-    public async Task<IActionResult> TestOzonHistoryResponse()
-    {
-        try
+        catch (OperationCanceledException)
         {
-            var result = await _messageBus.ConsumeAsync<HistoryRequest>(QueueNames.OzonHistoryRequest, HttpContext.RequestAborted);
-            
-            if (result == null) return Content("null");
-            
-            return Ok(new
-            {
-                result.Email,
-                result.Take
-            });
+            return StatusCode(504, new { error = "Gateway timeout - worker did not respond within 30 seconds" });
         }
         catch (Exception ex)
         {
