@@ -39,10 +39,11 @@ namespace PriceTracker.Ozon.Worker
                         if (request != null)
                         {
                             await ProcessRequestAsync(request, dbContext, messageBus, stoppingToken);
+                            continue;
                         }
                     }
                     
-                    await Task.Delay(100, stoppingToken);
+                    await Task.Delay(1000, stoppingToken);
                 }
                 catch (OperationCanceledException oe)
                 {

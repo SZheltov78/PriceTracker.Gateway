@@ -8,7 +8,8 @@ namespace PriceTracker.Shared.Contracts
 {
     public static class QueueNames
     {        
-        public const string OzonAddTasks = "ozon.tasks";
+        public const string CreateTasks = "create.tasks";
+
         public const string WbAddTasks = "wb.tasks";       
         
         public const string OzonHistoryRequest = "ozon.history.requests";

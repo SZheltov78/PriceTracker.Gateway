@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 
 namespace PriceTracker.Ozon.Worker
 {
+    /// <summary>
+    /// Create products history and notification
+    /// </summary>
     public class Worker : BackgroundService
     {
         private readonly IServiceScopeFactory _scopeFactory;        
