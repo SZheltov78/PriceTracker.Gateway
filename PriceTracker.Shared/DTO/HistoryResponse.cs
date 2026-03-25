@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using PriceTracker.Shared.Constants;
+using PriceTracker.Shared.Infrastructure.MessageBus;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -9,9 +10,10 @@ using System.Threading.Tasks;
 
 namespace PriceTracker.Shared.DTO
 {
-    public class HistoryResponse
+    public class HistoryResponse : IHasCorrelationId
     {
-        public List<ProductHistoryDto> Products { get; set; }
+        public string CorrelationId { get; set; }
+        public List<ProductHistoryDto> Products { get; set; }        
         public HistoryResponse()
         {
             Products = new List<ProductHistoryDto>();

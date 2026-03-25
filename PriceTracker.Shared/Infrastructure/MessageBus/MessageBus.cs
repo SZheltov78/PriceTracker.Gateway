@@ -41,13 +41,18 @@ public class RabbitMqBus : IMessageBus, IDisposable
                 queue: queueName,
                 durable: true,
                 exclusive: false,
-                autoDelete: false);
+                autoDelete: false);            
 
             var json = JsonSerializer.Serialize(message, _jsonOptions);
             var body = Encoding.UTF8.GetBytes(json);
 
             var properties = _channel.CreateBasicProperties();
             properties.Persistent = true;
+
+            if (message is IHasCorrelationId hasCorrelationId && hasCorrelationId != null)
+            {
+                properties.CorrelationId = hasCorrelationId.CorrelationId;                
+            }
 
             _channel.BasicPublish(
                 exchange: "",
@@ -77,6 +82,12 @@ public class RabbitMqBus : IMessageBus, IDisposable
             var body = result.Body.ToArray();
             var json = Encoding.UTF8.GetString(body);
             var message = JsonSerializer.Deserialize<T>(json, _jsonOptions);
+
+            var correlationId = result.BasicProperties?.CorrelationId;                
+            if(message is IHasCorrelationId hasCorrelationId && correlationId != null)
+            {
+                hasCorrelationId.CorrelationId = correlationId;
+            }
 
             _channel.BasicAck(result.DeliveryTag, false);
 

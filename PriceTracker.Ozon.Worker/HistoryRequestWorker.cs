@@ -84,6 +84,7 @@ namespace PriceTracker.Ozon.Worker
                 var groupedHistory = history.GroupBy(x => x.OzonTask.Url);
 
                 var responseVM = new HistoryResponse();
+                responseVM.CorrelationId = request.CorrelationId;
 
                 foreach (var priceItems in groupedHistory)
                 {
